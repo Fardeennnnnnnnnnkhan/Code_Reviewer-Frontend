@@ -35,7 +35,7 @@ function App() {
       return;
     }
     setLoading(true);
-    const response = await axios.post("https://code-reviewer-by-fardeen.onrender.com/", {
+    const response = await axios.post("https://code-reviewer-by-fardeen.onrender.com/ai/get-review", {
       code,
     });
     console.log(response);
