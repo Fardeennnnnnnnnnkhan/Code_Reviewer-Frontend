@@ -1,87 +1,123 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import "prismjs/themes/prism-tomorrow.css";
-import Editor from "react-simple-code-editor";
-import prism from "prismjs";
-import Markdown from "react-markdown";
-import rehypeHighlight from "rehype-highlight";
-import "highlight.js/styles/github-dark.css";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
 import "./App.css";
-import Toastify from "toastify-js";
-import "toastify-js/src/toastify.css";
+import LandingPage from "./components/LandingPage";
+import FeaturesSection from "./components/FeaturesSection";
+import HowItWorks from "./components/HowItWorks";
+import WhyChoose from "./components/WhyChoose";
+import ConnectUs from "./components/ConnectUs";
+import Model from "./components/Model";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+import MainNavbar from "./components/MainNavbar";
 
-function App() {
-  const [code, setCode] = useState(` function sum() {
-  return 1 + 1
-}`);
+function useScrollToSection() {
+  const location = useLocation();
+  useEffect(() => {
+    if (
+      location.pathname === "/" &&
+      location.state &&
+      location.state.scrollTo
+    ) {
+      const section = document.getElementById(location.state.scrollTo);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [location]);
+}
 
-  const [review, setReview] = useState(``);
-  const [loading, setLoading] = useState(false);
+function Home(props) {
+  useScrollToSection();
+  const location = useLocation();
 
   useEffect(() => {
-    prism.highlightAll();
-  }, []);
-
-  async function reviewCode() {
-    if (!code.trim()) {
-      Toastify({
-        text: "Please provide a code",
-        duration: 3000,
-        gravity: "top",
-        position: "right",
-        backgroundColor: "#ff4d4f",
-      }).showToast();
-      return;
+    // If there is no scrollTo in state, scroll to top on mount
+    if (!location.state || !location.state.scrollTo) {
+      window.scrollTo({ top: 0, behavior: "auto" });
     }
-    setLoading(true);
-    const response = await axios.post("https://code-reviewer-by-fardeen.onrender.com/ai/get-review", {
-      code,
-    });
-    console.log(response);
-    setReview(response.data.response);
-    setLoading(false);
-  }
+  }, [location]);
 
   return (
     <>
-      <main>
-        <div className="left">
-          <div className="code">
-            <Editor
-              value={code}
-              onValueChange={(code) => setCode(code)}
-              highlight={(code) =>
-                prism.highlight(code, prism.languages.javascript, "javascript")
-              }
-              padding={10}
-              style={{
-                fontFamily: '"Fira code", "Fira Mono", monospace',
-                fontSize: 16,
-                border: "1px solid #ddd",
-                borderRadius: "5px",
-                height: "100%",
-                width: "100%",
-              }}
-            />
-          </div>
-          <div onClick={reviewCode} className="review">
-            Review
-          </div>
-        </div>
-        <div className="right">
-          {loading ? (
-            <div className="loader-container">
-              <div className="loader"></div>
-              <div>Loading review...</div>
-            </div>
-          ) : (
-            <Markdown rehypePlugins={[rehypeHighlight]}>{review}</Markdown>
-          )}
-        </div>
-      </main>
+      <div id="landing">
+        <LandingPage {...props} />
+      </div>
+      <div id="whychoose">
+        <WhyChoose />
+      </div>
+      <div id="features">
+        <FeaturesSection />
+      </div>
+      <div id="howitworks">
+        <HowItWorks />
+      </div>
+      <div id="contact">
+        <ConnectUs />
+      </div>
     </>
   );
 }
 
-export default App;
+function ReviewPage() {
+  return (
+    <>
+      <Model />
+    </>
+  );
+}
+
+export default function App() {
+  // Smooth scroll handler
+  const handleScrollToSection = (id) => (e) => {
+    e.preventDefault();
+    if (id === "landing") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    const section = document.getElementById(id);
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+  // For Try Now button navigation
+  const navigate = useNavigate();
+  const handleModelRoute = () => navigate("/review");
+  // On /review, navbar links go to / and scroll to section
+  const handleNavFromReview = (id) => (e) => {
+    e.preventDefault();
+    navigate("/", { state: { scrollTo: id } });
+  };
+  // On /review, Try Now does nothing
+  const handleTryNowNoop = () => {};
+
+  const location = useLocation();
+  const isReviewPage = location.pathname === "/review";
+
+  // Manage menuOpen state here
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  return (
+    <>
+      <MainNavbar
+        onNav={isReviewPage ? handleNavFromReview : handleScrollToSection}
+        onTryNow={isReviewPage ? handleTryNowNoop : handleModelRoute}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+      />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Home onNav={handleScrollToSection} onTryNow={handleModelRoute} />
+          }
+        />
+        <Route path="/review" element={<ReviewPage />} />
+      </Routes>
+    </>
+  );
+}
