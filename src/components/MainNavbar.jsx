@@ -1,4 +1,10 @@
 import React from "react";
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton,
+} from "@clerk/clerk-react";
 
 export default function MainNavbar({ onNav, onTryNow, menuOpen, setMenuOpen }) {
   return (
@@ -30,7 +36,8 @@ export default function MainNavbar({ onNav, onTryNow, menuOpen, setMenuOpen }) {
       {/* Desktop Pill Navbar */}
       <div className="fixed top-8 left-1/2 z-40 -translate-x-1/2 flex flex-col items-center w-full pointer-events-none md:block hidden">
         <div className="flex items-center justify-center pointer-events-auto">
-          <div className="backdrop-blur-md bg-gradient-to-r from-white/80  rounded-full flex gap-10 shadow-lg px-8 py-3 border border-gray-200/60">
+          <div className="backdrop-blur-md bg-gradient-to-r from-white/80 rounded-full flex gap-6 items-center shadow-lg px-8 py-3 border border-gray-200/60">
+            {/* Links */}
             <button
               onClick={onNav("landing")}
               className="font-semibold text-sm text-black hover:underline px-4 py-1 bg-transparent border-none"
@@ -61,13 +68,30 @@ export default function MainNavbar({ onNav, onTryNow, menuOpen, setMenuOpen }) {
             >
               Contact
             </button>
+
+            {/* Try Now Button */}
             <button
               onClick={onTryNow}
-              className="bg-[#8e9c78] font-semibold px-4 py-2 rounded-full text-white text-sm shadow hover:bg-[#4a5638] transition text-center ml-4"
+              className="bg-[#8e9c78] font-semibold px-4 py-2 rounded-full text-white text-sm shadow hover:bg-[#4a5638] transition text-center ml-2"
               style={{ boxShadow: "0 2px 8px 0 rgba(0,0,0,0.08)" }}
             >
               Try Now
             </button>
+
+            {/* Clerk Auth Section */}
+            <div className="ml-4 flex items-center">
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="bg-gray-900 text-white text-sm px-4 py-2 rounded-full hover:bg-black transition">
+                    Sign In
+                  </button>
+                </SignInButton>
+              </SignedOut>
+
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
+            </div>
           </div>
         </div>
       </div>
@@ -108,6 +132,8 @@ export default function MainNavbar({ onNav, onTryNow, menuOpen, setMenuOpen }) {
               </svg>
             </button>
           </div>
+
+          {/* Mobile Nav Links */}
           <nav className="flex flex-col gap-4 px-8 mt-8">
             <button
               onClick={(e) => {
@@ -154,6 +180,8 @@ export default function MainNavbar({ onNav, onTryNow, menuOpen, setMenuOpen }) {
             >
               Contact
             </button>
+
+            {/* Try Now */}
             <button
               onClick={() => {
                 setMenuOpen(false);
@@ -164,9 +192,27 @@ export default function MainNavbar({ onNav, onTryNow, menuOpen, setMenuOpen }) {
             >
               Try Now
             </button>
+
+            {/* Clerk Auth for Mobile */}
+            <div className="mt-6">
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="w-full bg-gray-900 text-white text-sm px-4 py-2 rounded-full hover:bg-black transition">
+                    Sign In
+                  </button>
+                </SignInButton>
+              </SignedOut>
+
+              <SignedIn>
+                <div className="flex justify-center mt-4">
+                  <UserButton afterSignOutUrl="/" />
+                </div>
+              </SignedIn>
+            </div>
           </nav>
         </div>
       </div>
+
       {/* Overlay when menu is open */}
       {menuOpen && (
         <div

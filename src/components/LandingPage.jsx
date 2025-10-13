@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import Code from "../../public/Code.jpg";
+import Code from "../../public/newCode.png";
 import MainNavbar from "./MainNavbar";
 
 export default function LandingPage() {

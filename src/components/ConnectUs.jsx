@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export default function ConnectUs() {
   // No need for useNavigate since we are redirecting to an external URL
-  const portfolioUrl = "https://portfolio-fardeen-khan.vercel.app/"; // Replace with your actual portfolio URL
+  const portfolioUrl = "https://fardeen-khan.vercel.app/"; // Replace with your actual portfolio URL
   return (
     <section className="w-full mx-auto px-4 md:px-12 py-24 flex flex-col items-center justify-center text-center">
       <h2 className="text-4xl md:text-6xl font-serif font-normal text-black mb-8 mt-4">
