@@ -702,8 +702,8 @@ const Model = () => {
           "https://code-reviewer-by-fardeen.onrender.com/ai/get-review",
           { code }
         ),
-        axios.post("http://localhost:3000/ai/get-cohere-review", { code }),
-        axios.post("http://localhost:3000/ai/get-openai-review", { code }),
+        axios.post("https://code-reviewer-by-fardeen.onrender.com/ai/get-cohere-review", { code }),
+        axios.post("https://code-reviewer-by-fardeen.onrender.com/ai/get-openai-review", { code }),
       ]);
 
       setGeminiReview(geminiRes.data.response);
