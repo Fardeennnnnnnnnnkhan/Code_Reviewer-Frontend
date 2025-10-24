@@ -13,6 +13,7 @@
     "@clerk/clerk-react": "^5.51.0",
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.10.0",
+    "cohere-ai": "^7.19.0",
     "framer-motion": "^12.23.3",
     "prismjs": "^1.30.0",
     "react": "^19.1.0",
