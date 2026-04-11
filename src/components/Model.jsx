@@ -34,21 +34,41 @@ const Model = () => {
     setLoading(true);
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/ai/get-review";
+      // Ensure the URL is constructed properly
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const apiUrl = baseUrl.includes('/ai/get-review') ? baseUrl : `${baseUrl.replace(/\/$/, '')}/ai/get-review`;
+      
       const res = await axios.post(apiUrl, { code });
-      setReview(res.data.response);
+      
+      if (res.data && res.data.success) {
+        setReview(res.data.response);
+      } else if (res.data && res.data.response) { // Fallback for old backend
+        setReview(res.data.response);
+      } else {
+        throw new Error("Invalid response format from server");
+      }
     } catch (err) {
-      const errorMsg = err.response && err.response.data && err.response.data.error 
-        ? err.response.data.error 
-        : "Failed to fetch review";
+      let errorMsg = "Failed to fetch review.";
+      
+      if (err.response) {
+        // The server responded with a status code outside the 2xx range
+        errorMsg = err.response.data?.message || err.response.data?.error || `Server Error: ${err.response.status}`;
+      } else if (err.request) {
+        // The request was made but no response was received
+        errorMsg = "No response from server. It might be starting up, please wait a minute and try again.";
+      } else {
+        // Something happened in setting up the request
+        errorMsg = err.message;
+      }
+      
       Toastify({
         text: errorMsg,
-        duration: 4000,
+        duration: 5000,
         gravity: "top",
         position: "right",
         backgroundColor: "#ff4d4f",
       }).showToast();
-      console.error(err);
+      console.error("[Code Review Error]:", err);
     } finally {
       setLoading(false);
     }
