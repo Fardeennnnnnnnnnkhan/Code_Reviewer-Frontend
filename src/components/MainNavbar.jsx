@@ -69,6 +69,15 @@ export default function MainNavbar({ onNav, onTryNow, menuOpen, setMenuOpen }) {
               Contact
             </button>
 
+            <SignedIn>
+              <button
+                onClick={() => window.location.href = '/history'}
+                className="font-semibold text-sm text-black hover:underline px-4 py-1 bg-transparent border-none"
+              >
+                History
+              </button>
+            </SignedIn>
+
             {/* Try Now Button */}
             <button
               onClick={onTryNow}
@@ -89,7 +98,9 @@ export default function MainNavbar({ onNav, onTryNow, menuOpen, setMenuOpen }) {
               </SignedOut>
 
               <SignedIn>
-                <UserButton afterSignOutUrl="/" />
+                <div className="flex gap-4 items-center">
+                  <UserButton afterSignOutUrl="/" />
+                </div>
               </SignedIn>
             </div>
           </div>
@@ -180,6 +191,18 @@ export default function MainNavbar({ onNav, onTryNow, menuOpen, setMenuOpen }) {
             >
               Contact
             </button>
+
+            <SignedIn>
+              <button
+                onClick={(e) => {
+                  setMenuOpen(false);
+                  window.location.href = '/history';
+                }}
+                className=" text-sm text-black hover:underline py-2 bg-transparent border-none text-left"
+              >
+                History
+              </button>
+            </SignedIn>
 
             {/* Try Now */}
             <button

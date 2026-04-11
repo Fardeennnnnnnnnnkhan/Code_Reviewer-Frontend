@@ -9,24 +9,41 @@ import axios from "axios";
 import Toastify from "toastify-js";
 import "toastify-js/src/toastify.css";
 import "../../src/App.css";
+import { useUser } from "@clerk/clerk-react";
 
 const Model = () => {
   const [code, setCode] = useState(`function sum() {\n  return 1 + 1;\n}`);
   const [loading, setLoading] = useState(false);
   const [review, setReview] = useState("");
+  const { user, isLoaded, isSignedIn } = useUser();
 
   useEffect(() => {
     prism.highlightAll();
   }, []);
 
   const reviewCode = async () => {
+    if (!isSignedIn) {
+      Toastify({
+        text: "Please sign in first to evaluate code and save your history.",
+        duration: 4000,
+        gravity: "top",
+        position: "right",
+        style: {
+          background: "#4A5638",
+        },
+      }).showToast();
+      return;
+    }
+
     if (!code.trim()) {
       Toastify({
         text: "Please provide code to review",
         duration: 3000,
         gravity: "top",
         position: "right",
-        backgroundColor: "#ff4d4f",
+        style: {
+          background: "#ff4d4f",
+        },
       }).showToast();
       return;
     }
@@ -38,7 +55,13 @@ const Model = () => {
       const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
       const apiUrl = baseUrl.includes('/ai/get-review') ? baseUrl : `${baseUrl.replace(/\/$/, '')}/ai/get-review`;
       
-      const res = await axios.post(apiUrl, { code });
+      const payload = {
+        code,
+        userId: user ? user.id : null,
+        email: user?.primaryEmailAddress?.emailAddress || ""
+      };
+      
+      const res = await axios.post(apiUrl, payload);
       
       if (res.data && res.data.success) {
         setReview(res.data.response);
@@ -66,7 +89,9 @@ const Model = () => {
         duration: 5000,
         gravity: "top",
         position: "right",
-        backgroundColor: "#ff4d4f",
+        style: {
+          background: "#ff4d4f",
+        },
       }).showToast();
       console.error("[Code Review Error]:", err);
     } finally {
@@ -75,7 +100,7 @@ const Model = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 pt-20 md:pt-28">
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
