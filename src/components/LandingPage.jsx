@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import Code from "../../public/newCode.png";
 import MainNavbar from "./MainNavbar";
-
+import Spline from '@splinetool/react-spline';
 export default function LandingPage() {
   return (
     <motion.div

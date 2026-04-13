@@ -97,7 +97,20 @@ const History = () => {
                     <h4 className="text-sm font-semibold text-slate-500 mb-4 uppercase tracking-wider">AI Insight</h4>
                     <div className="prose prose-sm prose-slate max-w-none">
                       <Markdown rehypePlugins={[rehypeHighlight]}>
-                        {item.response}
+                        {(() => {
+                          try {
+                            const parsed = JSON.parse(item.response);
+                            if (parsed.feedback) return parsed.feedback;
+                            // Optionally loop through improvements
+                            let md = "";
+                            if (parsed.improvements && Array.isArray(parsed.improvements)) {
+                                md += "\n\n**Improvements:**\n" + parsed.improvements.map(i => "- " + i).join("\n");
+                            }
+                            return md ? md : "Wait, please check JSON format:\n```json\n" + item.response + "\n```";
+                          } catch (e) {
+                             return item.response;
+                          }
+                        })()}
                       </Markdown>
                     </div>
                   </div>

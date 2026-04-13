@@ -64,7 +64,8 @@ const Model = () => {
       const res = await axios.post(apiUrl, payload);
       
       if (res.data && res.data.success) {
-        setReview(res.data.response);
+        const feedback = res.data.parsedResponse?.feedback || (typeof res.data.response === 'string' ? "Wait, please check JSON format:\n```json\n" + res.data.response + "\n```" : "");
+        setReview(feedback);
       } else if (res.data && res.data.response) { // Fallback for old backend
         setReview(res.data.response);
       } else {

@@ -7,6 +7,7 @@ import WhyChoose from "./components/WhyChoose";
 import ConnectUs from "./components/ConnectUs";
 import Model from "./components/Model";
 import History from "./components/History";
+import Profile from "./pages/Profile";
 import {
   BrowserRouter as Router,
   Routes,
@@ -80,8 +81,15 @@ function HistoryPage() {
   );
 }
 
+function ProfilePage() {
+  return (
+    <>
+      <Profile />
+    </>
+  );
+}
+
 export default function App() {
-  // Smooth scroll handler
   const handleScrollToSection = (id) => (e) => {
     e.preventDefault();
     if (id === "landing") {
@@ -93,22 +101,19 @@ export default function App() {
       section.scrollIntoView({ behavior: "smooth" });
     }
   };
-  // For Try Now button navigation
+
   const navigate = useNavigate();
   const handleModelRoute = () => navigate("/review");
-  // On /review or /history, navbar links go to / and scroll to section
   const handleNavFromReview = (id) => (e) => {
     e.preventDefault();
     navigate("/", { state: { scrollTo: id } });
   };
-  // On non-home pages, Try Now does nothing
   const handleTryNowNoop = () => {};
 
   const location = useLocation();
-  const isSecondaryPage = location.pathname === "/review" || location.pathname === "/history";
+  const isSecondaryPage = location.pathname === "/review" || location.pathname === "/history" || location.pathname === "/profile";
   const isReviewPage = location.pathname === "/review";
 
-  // Manage menuOpen state here
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -128,6 +133,7 @@ export default function App() {
         />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/history" element={<HistoryPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </>
   );

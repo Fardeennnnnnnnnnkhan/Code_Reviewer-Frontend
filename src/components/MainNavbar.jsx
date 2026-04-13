@@ -70,12 +70,20 @@ export default function MainNavbar({ onNav, onTryNow, menuOpen, setMenuOpen }) {
             </button>
 
             <SignedIn>
-              <button
-                onClick={() => window.location.href = '/history'}
-                className="font-semibold text-sm text-black hover:underline px-4 py-1 bg-transparent border-none"
-              >
-                History
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => window.location.href = '/profile'}
+                  className="font-semibold text-sm text-black hover:underline px-4 py-1 bg-transparent border-none"
+                >
+                  Profile
+                </button>
+                <button
+                  onClick={() => window.location.href = '/history'}
+                  className="font-semibold text-sm text-black hover:underline px-4 py-1 bg-transparent border-none"
+                >
+                  History
+                </button>
+              </div>
             </SignedIn>
 
             {/* Try Now Button */}
@@ -193,15 +201,26 @@ export default function MainNavbar({ onNav, onTryNow, menuOpen, setMenuOpen }) {
             </button>
 
             <SignedIn>
-              <button
-                onClick={(e) => {
-                  setMenuOpen(false);
-                  window.location.href = '/history';
-                }}
-                className=" text-sm text-black hover:underline py-2 bg-transparent border-none text-left"
-              >
-                History
-              </button>
+              <>
+                <button
+                  onClick={(e) => {
+                    setMenuOpen(false);
+                    window.location.href = '/profile';
+                  }}
+                  className=" text-sm text-black hover:underline py-2 bg-transparent border-none text-left"
+                >
+                  Profile
+                </button>
+                <button
+                  onClick={(e) => {
+                    setMenuOpen(false);
+                    window.location.href = '/history';
+                  }}
+                  className=" text-sm text-black hover:underline py-2 bg-transparent border-none text-left"
+                >
+                  History
+                </button>
+              </>
             </SignedIn>
 
             {/* Try Now */}
