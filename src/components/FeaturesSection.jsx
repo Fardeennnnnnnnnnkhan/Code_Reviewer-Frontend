@@ -1,4 +1,5 @@
 import React from "react";
+import BlurReveal from "./BlurReveal";
 
 const features = [
   {
@@ -124,14 +125,14 @@ const features = [
 export default function FeaturesSection() {
   return (
     <section className="w-full mx-auto  px-6 md:px-16 py-10">
-      <div className="mb-16">
+      <BlurReveal stagger={true} className="mb-16">
         <div className="text-[#8e9c78] text-lg  mb-8">Benefits</div>
         <h2 className="text-4xl md:text-7xl mb-14">We’ve cracked the code.</h2>
         <p className="text-2xl text-gray-500 mb-6">
           CodeCureAI provides real insights, without the data overload.
         </p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      </BlurReveal>
+      <BlurReveal stagger={true} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {features.map((f, i) => (
           <div
             key={i}
@@ -146,7 +147,7 @@ export default function FeaturesSection() {
             </div>
           </div>
         ))}
-      </div>
+      </BlurReveal>
     </section>
   );
 }

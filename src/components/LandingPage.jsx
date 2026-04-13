@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Code from "../../public/newCode.png";
 import MainNavbar from "./MainNavbar";
 import Spline from '@splinetool/react-spline';
+import BlurText from "./UI/BlurText";
 export default function LandingPage() {
   return (
     <motion.div
@@ -20,7 +21,14 @@ export default function LandingPage() {
         transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
       >
         <div className="text-3xl font-sans font-normal text-black">
-          CodeCureAI
+         <BlurText
+  text="CodeCureAI"
+  delay={200}
+  animateBy="words"
+  direction="top"
+  // onAnimationComplete={handleAnimationComplete}
+  className="text-2xl mb-8"
+/>
         </div>
         {/* Desktop Learn More button */}
       </motion.div>

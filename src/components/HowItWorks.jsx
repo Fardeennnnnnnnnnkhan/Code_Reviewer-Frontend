@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import BlurReveal from "./BlurReveal";
 
 const steps = [
   {
@@ -18,36 +18,11 @@ const steps = [
     title: "Accelerate Your Success",
     desc: "Leverage CodeCursorAI’s insights to improve code quality and achieve your development goals faster.",
   },
-];
-
-const containerVariants = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.25,
-    },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 40 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
-};
-
-const numberVariants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  show: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.5, ease: "easeOut" },
-  },
-};
-
-export default function HowItWorks() {
+];export default function HowItWorks() {
   const navigate = useNavigate();
   return (
     <section className="w-full  mx-auto px-4 md:px-12 py-24">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
+      <BlurReveal stagger={true} className="flex flex-col md:flex-row md:items-center md:justify-between mb-12">
         <h2 className="text-4xl md:text-6xl font-serif font-normal text-black mb-8 md:mb-0">
           Map Your Success
         </h2>
@@ -57,35 +32,25 @@ export default function HowItWorks() {
         >
           Discover More
         </button>
-      </div>
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-3 gap-4"
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.3 }}
-      >
+      </BlurReveal>
+      <BlurReveal stagger={true} className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {steps.map((step, i) => (
-          <motion.div
+          <div
             key={i}
             className={`flex flex-col border-t border-gray-200 items-start pt-12 pb-8 px-2 md:px-8 ${
               i < steps.length - 1 ? " " : ""
             }`}
-            variants={cardVariants}
           >
-            <motion.div
-              className="text-9xl text-gray-400 mb-8"
-              variants={numberVariants}
-            >
+            <div className="text-9xl text-gray-400 mb-8">
               {step.number}
-            </motion.div>
+            </div>
             <div className="text-2xl  font-normal text-black mb-4">
               {step.title}
             </div>
             <div className="text-lg text-gray-500 ">{step.desc}</div>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </BlurReveal>
     </section>
   );
 }

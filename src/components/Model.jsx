@@ -10,6 +10,7 @@ import Toastify from "toastify-js";
 import "toastify-js/src/toastify.css";
 import "../../src/App.css";
 import { useUser } from "@clerk/clerk-react";
+import BlurReveal from "./BlurReveal";
 
 const Model = () => {
   const [code, setCode] = useState(`function sum() {\n  return 1 + 1;\n}`);
@@ -103,7 +104,7 @@ const Model = () => {
   return (
     <div className="min-h-screen bg-slate-50 pt-20 md:pt-28">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200">
+      <BlurReveal className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -120,10 +121,10 @@ const Model = () => {
             </div>
           </div>
         </div>
-      </div>
+      </BlurReveal>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <BlurReveal stagger={true} delay={0.2} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Code Input Section */}
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm">
             <div className="px-6 py-4 border-b border-slate-200">
@@ -201,7 +202,7 @@ const Model = () => {
               )}
             </div>
           </div>
-        </div>
+        </BlurReveal>
       </div>
     </div>
   );

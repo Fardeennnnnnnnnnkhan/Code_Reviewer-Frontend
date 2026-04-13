@@ -2,18 +2,14 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
+import BlurReveal from "./BlurReveal";
+
 export default function WhyChoose() {
   const navigate = useNavigate();
   return (
-    <motion.section
-      className="w-full mx-auto px-4 md:px-12 py-10"
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.4 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-    >
+    <section className="w-full mx-auto px-4 md:px-12 py-10">
       <div className="border-t border-gray-200 w-full mb-12"></div>
-      <div className="flex flex-col items-center justify-center text-center">
+      <BlurReveal stagger={true} className="flex flex-col items-center justify-center text-center">
         <div className="text-[#8e9c78] text-md  mb-8 mt-2">Specs</div>
         <h2 className="text-4xl md:text-7xl mt-2  font-normal text-black mb-8">
           Why Choose CodeCureAI?
@@ -44,7 +40,7 @@ export default function WhyChoose() {
         >
           Discover More
         </motion.button>
-      </div>
-    </motion.section>
+      </BlurReveal>
+    </section>
   );
 }

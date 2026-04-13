@@ -1,12 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import BlurReveal from "./BlurReveal";
 
 export default function ConnectUs() {
   // No need for useNavigate since we are redirecting to an external URL
   const portfolioUrl = "https://fardeen-khan.vercel.app/"; // Replace with your actual portfolio URL
   return (
     <section className="w-full mx-auto px-4 md:px-12 py-24 flex flex-col items-center justify-center text-center">
-      <h2 className="text-4xl md:text-6xl font-serif font-normal text-black mb-8 mt-4">
+      <BlurReveal stagger={true} className="flex flex-col items-center justify-center text-center w-full max-w-4xl">
+        <h2 className="text-4xl md:text-6xl font-serif font-normal text-black mb-8 mt-4">
         Connect with us
       </h2>
       <p className="text-lg md:text-xl text-gray-500 mb-10 max-w-2xl mx-auto">
@@ -84,13 +86,14 @@ export default function ConnectUs() {
         </div>
         <div className="text-[#8e9c78] text-sm font-mono mt-2 md:mt-0"></div>
       </footer>
-      <div className="w-full text-center text-gray-400 text-lg mt-2 ">
-        Created and developed by{" "}
-        <span className="text-[#8e9c78] font-mono font-bold">
-          {" "}
-          Fardeen Khan
-        </span>
-      </div>
+        <div className="w-full text-center text-gray-400 text-lg mt-2 ">
+          Created and developed by{" "}
+          <span className="text-[#8e9c78] font-mono font-bold">
+            {" "}
+            Fardeen Khan
+          </span>
+        </div>
+      </BlurReveal>
     </section>
   );
 }
