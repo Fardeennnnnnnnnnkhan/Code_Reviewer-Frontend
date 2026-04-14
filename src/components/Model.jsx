@@ -19,11 +19,18 @@ const Model = () => {
   const { user, isLoaded, isSignedIn } = useUser();
   const [inputMode, setInputMode] = useState("code"); // "code" | "file"
   const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      if (file.type.startsWith('image/')) {
+        setPreviewUrl(URL.createObjectURL(file));
+      } else {
+        setPreviewUrl(null);
+      }
     }
   };
 
@@ -45,15 +52,24 @@ const Model = () => {
       return;
     }
 
-    if (!code.trim()) {
+    if (inputMode === 'code' && !code.trim()) {
       Toastify({
-        text: "Please provide code to review",
+        text: "Please provide code to review.",
         duration: 3000,
         gravity: "top",
         position: "right",
-        style: {
-          background: "#ff4d4f",
-        },
+        style: { background: "#ff4d4f" },
+      }).showToast();
+      return;
+    }
+
+    if (inputMode === 'file' && !selectedFile) {
+      Toastify({
+        text: "Please select an image file to analyze.",
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        style: { background: "#ff4d4f" },
       }).showToast();
       return;
     }
@@ -61,20 +77,54 @@ const Model = () => {
     setLoading(true);
 
     try {
-      // Ensure the URL is constructed properly
       const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-      const apiUrl = baseUrl.includes('/ai/get-review') ? baseUrl : `${baseUrl.replace(/\/$/, '')}/ai/get-review`;
+      let reviewApiUrl;
+      let payload;
+
+      if (inputMode === 'code') {
+        reviewApiUrl = baseUrl.includes('/ai/get-review') ? baseUrl : `${baseUrl.replace(/\/$/, '')}/ai/get-review`;
+        payload = {
+          code,
+          userId: user ? user.id : null,
+          email: user?.primaryEmailAddress?.emailAddress || ""
+        };
+      } else if (inputMode === 'file') {
+        // Validate Image
+        if (!selectedFile.type.startsWith('image/')) {
+           throw new Error("Only Image files are currently supported for File Upload analysis.");
+        }
+        
+        // Step 1: Upload image to ImageKit
+        const uploadApiUrl = `${baseUrl.replace(/\/$/, '')}/images/upload`;
+        const formData = new FormData();
+        formData.append('image', selectedFile);
+
+        const uploadRes = await axios.post(uploadApiUrl, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        const uploadedImageUrl = uploadRes.data.image.url;
+
+        // Step 2: Use URL to analyze image
+        reviewApiUrl = `${baseUrl.replace(/\/$/, '')}/ai/analyze-image-code`;
+        payload = {
+          imageUrl: uploadedImageUrl,
+          userId: user ? user.id : null,
+          email: user?.primaryEmailAddress?.emailAddress || ""
+        };
+      }
       
-      const payload = {
-        code,
-        userId: user ? user.id : null,
-        email: user?.primaryEmailAddress?.emailAddress || ""
-      };
-      
-      const res = await axios.post(apiUrl, payload);
+      const res = await axios.post(reviewApiUrl, payload);
       
       if (res.data && res.data.success) {
-        const feedback = res.data.parsedResponse?.feedback || (typeof res.data.response === 'string' ? "Wait, please check JSON format:\n```json\n" + res.data.response + "\n```" : "");
+        let feedback = "";
+        
+        if (inputMode === 'file') {
+          feedback = res.data.parsedResponse?.feedback || "Analysis completed but no feedback was returned.";
+        } else {
+          feedback = res.data.parsedResponse?.feedback || (typeof res.data.response === 'string' ? "Wait, please check JSON format:\n```json\n" + res.data.response + "\n```" : "");
+        }
+        
         setReview(feedback);
       } else if (res.data && res.data.response) { // Fallback for old backend
         setReview(res.data.response);
@@ -85,13 +135,10 @@ const Model = () => {
       let errorMsg = "Failed to fetch review.";
       
       if (err.response) {
-        // The server responded with a status code outside the 2xx range
         errorMsg = err.response.data?.message || err.response.data?.error || `Server Error: ${err.response.status}`;
       } else if (err.request) {
-        // The request was made but no response was received
         errorMsg = "No response from server. It might be starting up, please wait a minute and try again.";
       } else {
-        // Something happened in setting up the request
         errorMsg = err.message;
       }
       
@@ -194,7 +241,7 @@ const Model = () => {
                       </div>
                     </div>
                  ) : (
-                    <div className="h-[450px] border-2 border-dashed border-[#8d9a7b]/40 rounded-3xl bg-gradient-to-br from-[#fafaf9]/80 to-white flex flex-col items-center justify-center relative transition-all duration-300 hover:border-[#8d9a7b] hover:bg-[#fafaf9] group">
+                    <div className="h-[450px] border-2 border-dashed border-[#8d9a7b]/40 rounded-3xl bg-gradient-to-br from-[#fafaf9]/80 to-white flex flex-col items-center justify-center relative transition-all duration-300 hover:border-[#8d9a7b] hover:bg-[#fafaf9] group overflow-hidden">
                        <input 
                           type="file" 
                           ref={fileInputRef} 
@@ -202,17 +249,29 @@ const Model = () => {
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
                           accept=".js,.jsx,.ts,.tsx,.py,.java,.c,.cpp,.cs,.php,.rb,.go,.rs,.txt,.pdf,.doc,.docx,image/*"
                        />
-                       <div className="w-24 h-24 bg-white shadow-md border border-[#8d9a7b]/15 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 group-hover:shadow-[0_0_30px_rgba(141,154,123,0.15)] ring-4 ring-[#eaf4d7]/50">
-                          <svg className="w-12 h-12 text-[#8d9a7b]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                          </svg>
-                       </div>
-                       <h3 className="text-2xl font-bold text-slate-800 tracking-tight mb-2">Drop resources here</h3>
-                       <p className="text-slate-500 text-center max-w-sm leading-relaxed text-sm md:text-base px-4">
-                          We process Images, PDFs, Word docs, and Raw Code files. <span className="text-[#8d9a7b] font-bold underline decoration-[#8d9a7b]/40 underline-offset-4 pointer-events-none">Click to browse</span>
-                       </p>
                        
-                       {selectedFile && (
+                       {previewUrl ? (
+                          <div className="w-full h-full p-4 relative z-0 flex items-center justify-center bg-black/5">
+                             <img src={previewUrl} alt="Preview" className="max-w-full max-h-full rounded-xl object-contain shadow-md" />
+                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-3xl pointer-events-none">
+                                <span className="text-white font-bold tracking-wider text-xl drop-shadow-md">Click to change image</span>
+                             </div>
+                          </div>
+                       ) : (
+                          <>
+                             <div className="w-24 h-24 bg-white shadow-md border border-[#8d9a7b]/15 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 group-hover:shadow-[0_0_30px_rgba(141,154,123,0.15)] ring-4 ring-[#eaf4d7]/50">
+                                <svg className="w-12 h-12 text-[#8d9a7b]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                             </div>
+                             <h3 className="text-2xl font-bold text-slate-800 tracking-tight mb-2">Drop resources here</h3>
+                             <p className="text-slate-500 text-center max-w-sm leading-relaxed text-sm md:text-base px-4">
+                                We process Images, PDFs, Word docs, and Raw Code files. <span className="text-[#8d9a7b] font-bold underline decoration-[#8d9a7b]/40 underline-offset-4 pointer-events-none">Click to browse</span>
+                             </p>
+                          </>
+                       )}
+                       
+                       {selectedFile && !previewUrl && (
                           <div className="absolute bottom-6 left-6 right-6 bg-white rounded-2xl border border-emerald-200/60 p-5 shrink-0 shadow-lg flex justify-between items-center z-20 backdrop-blur-sm bg-white/90">
                              <div className="flex items-center gap-4 overflow-hidden">
                                 <div className="p-2 bg-emerald-50 rounded-xl">
@@ -223,7 +282,24 @@ const Model = () => {
                                   <span className="text-xs font-semibold text-slate-400">Ready for scan</span>
                                 </div>
                              </div>
-                             <button onClick={(e) => { e.preventDefault(); setSelectedFile(null); }} className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2.5 rounded-full transition-colors shrink-0 z-30 relative">
+                             <button onClick={(e) => { e.preventDefault(); setSelectedFile(null); setPreviewUrl(null); }} className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2.5 rounded-full transition-colors shrink-0 z-30 relative cursor-pointer">
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                             </button>
+                          </div>
+                       )}
+
+                       {selectedFile && previewUrl && (
+                          <div className="absolute bottom-6 left-6 right-6 bg-white/80 rounded-2xl border border-emerald-200/50 p-4 shrink-0 shadow-lg flex justify-between items-center z-20 backdrop-blur-md">
+                             <div className="flex items-center gap-4 overflow-hidden">
+                                <div className="p-2 bg-emerald-100 rounded-xl">
+                                  <svg className="w-6 h-6 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-bold text-slate-800 truncate text-sm">{selectedFile.name}</span>
+                                  <span className="text-xs font-semibold text-emerald-600">Image Ready</span>
+                                </div>
+                             </div>
+                             <button onClick={(e) => { e.preventDefault(); setSelectedFile(null); setPreviewUrl(null); }} className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2.5 rounded-full transition-colors shrink-0 z-30 relative cursor-pointer">
                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                              </button>
                           </div>
