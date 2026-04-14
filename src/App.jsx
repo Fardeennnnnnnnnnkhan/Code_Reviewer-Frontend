@@ -8,6 +8,7 @@ import ConnectUs from "./components/ConnectUs";
 import Model from "./components/Model";
 import History from "./components/History";
 import Profile from "./pages/Profile";
+import ScrollVelocity from "./components/UI/ScrollVelocity";
 import {
   BrowserRouter as Router,
   Routes,
@@ -49,6 +50,21 @@ function Home(props) {
       <div id="landing">
         <LandingPage {...props} />
       </div>
+      
+      {/* Scroll Velocity Separator */}
+      <div className="w-full bg-[#fafaf9] py-16 md:py-24 overflow-hidden border-y border-[#8d9a7b]/10 flex flex-col gap-6">
+        <ScrollVelocity
+            texts={[
+                "CodeCureAI • Next-Gen Intelligence • Flawless Architecture • Elite Pair Programmer • ",
+                "Superhuman Speed • Security Audits • Clean Codebases • Automated Refactoring • "
+            ]}
+            velocity={45}
+            className="text-[#4a5638] font-normal tracking-wide opacity-90 mx-4"
+            damping={40}
+            stiffness={300}
+        />
+      </div>
+
       <div id="whychoose">
         <WhyChoose />
       </div>
